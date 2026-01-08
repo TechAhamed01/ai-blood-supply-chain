@@ -9,7 +9,9 @@ from blood_requests.models import BloodRequest
 from ai_engine.recommender import suggest_blood_banks
 from ai_engine.models import AllocationSuggestion
 from delivery.models import Delivery, Driver
-
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsHospital, IsAdmin, IsDriver
+from rest_framework.decorators import api_view, permission_classes
 from .serializers import (
     AllocationSuggestionSerializer,
     DeliverySerializer,
@@ -101,3 +103,38 @@ def track_request(request, request_id):
 
     serializer = DeliverySerializer(delivery)
     return Response(serializer.data)
+# Hospital creates blood request
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsHospital])
+def create_blood_request(request):
+    ...
+
+# Generate AI suggestions (hospital/admin can see)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def generate_suggestions(request, request_id):
+    ...
+
+# Confirm selected bank (hospital)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsHospital])
+def confirm_allocation(request, suggestion_id):
+    ...
+
+# Assign driver (admin only)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsAdmin])
+def assign_driver(request):
+    ...
+
+# Update delivery status (driver only)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsDriver])
+def update_delivery_status(request, delivery_id):
+    ...
+
+# Track request (hospital/admin)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def track_request(request, request_id):
+    ...
